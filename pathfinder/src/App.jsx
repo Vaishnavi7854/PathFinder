@@ -5,6 +5,7 @@ import HomePage from './components/HomePage'
 import Profile from './components/Profile'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import NavBar from './components/NavBar'
+import ChatBot from './components/ChatBot'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -17,6 +18,7 @@ function App() {
           <Route path='/loginsignup' element={<LoginSignUp />}/>
           <Route path='/' element={<HomePage />}/>
           <Route path='/profile' element={<Profile />}/>
+          <Route path='/chat' element={<ChatBot />}/>
         </Routes>
       </Router>
     </>
