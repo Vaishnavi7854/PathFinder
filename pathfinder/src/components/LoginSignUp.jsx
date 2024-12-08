@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useAuth } from '../contexts/AuthContext'
 
 const InputField = ({ type, placeholder, value, onChange }) => (
   <motion.input
@@ -28,9 +29,19 @@ const Button = ({ children, isSignUp = false, onClick }) => (
   </motion.button>
 )
 
-const LoginForm = ({ onToggle, onLogin }) => {
+const LoginForm = ({ onToggle }) => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const { login } = useAuth()
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    const result = await login(email, password)
+    if (!result.success) {
+      setError(result.error)
+    }
+  }
 
   return (
     <motion.div
@@ -42,7 +53,8 @@ const LoginForm = ({ onToggle, onLogin }) => {
     >
       <InputField type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
       <InputField type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-      <Button onClick={() => onLogin(email, password)}>Login</Button>
+      <Button onClick={handleSubmit}>Login</Button>
+      {error && <p className="text-red-500 text-center">{error}</p>}
       <p className="text-center text-[#E2F1E7]">
         Don't have an account?{' '}
         <button onClick={onToggle} className="text-[#629584] hover:underline font-semibold">
@@ -53,10 +65,20 @@ const LoginForm = ({ onToggle, onLogin }) => {
   )
 }
 
-const SignupForm = ({ onToggle, onSignup }) => {
+const SignupForm = ({ onToggle }) => {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const { signup } = useAuth()
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    const result = await signup(name, email, password)
+    if (!result.success) {
+      setError(result.error)
+    }
+  }
 
   return (
     <motion.div
@@ -69,7 +91,8 @@ const SignupForm = ({ onToggle, onSignup }) => {
       <InputField type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
       <InputField type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
       <InputField type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-      <Button isSignUp={true} onClick={() => onSignup(name, email, password)}>Sign Up</Button>
+      <Button isSignUp={true} onClick={handleSubmit}>Sign Up</Button>
+      {error && <p className="text-red-500 text-center">{error}</p>}
       <p className="text-center text-[#E2F1E7]">
         Already have an account?{' '}
         <button onClick={onToggle} className="text-[#629584] hover:underline font-semibold">
@@ -84,31 +107,6 @@ export default function LoginSignUp() {
   const [isLogin, setIsLogin] = useState(true)
 
   const toggleForm = () => setIsLogin(!isLogin)
-
-  const handleSignup = async (name, email, password) => {
-    const response = await fetch('http://localhost:8000/signup', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ name, email, password })
-    })
-    const data = await response.json()
-    console.log(data)
-  }
-
-  const handleLogin = async (email, password) => {
-    const response = await fetch('http://localhost:8000/token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: new URLSearchParams({ username: email, password }),
-      credentials: 'include'  // Include cookies in the request
-    })
-    const data = await response.json()
-    console.log(data)
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#243642] via-[#387478] to-[#629584] animate-gradient-x">
@@ -129,9 +127,9 @@ export default function LoginSignUp() {
           </motion.h2>
           <AnimatePresence mode="wait">
             {isLogin ? (
-              <LoginForm key="login" onToggle={toggleForm} onLogin={handleLogin} />
+              <LoginForm key="login" onToggle={toggleForm} />
             ) : (
-              <SignupForm key="signup" onToggle={toggleForm} onSignup={handleSignup} />
+              <SignupForm key="signup" onToggle={toggleForm} />
             )}
           </AnimatePresence>
         </motion.div>

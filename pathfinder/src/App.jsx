@@ -6,6 +6,8 @@ import Profile from './components/Profile'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import NavBar from './components/NavBar'
 import ChatBot from './components/ChatBot'
+import { AuthProvider } from './contexts/AuthContext'
+import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -13,13 +15,27 @@ function App() {
   return (
     <>
       <Router>
-        <NavBar />
-        <Routes>
-          <Route path='/loginsignup' element={<LoginSignUp />}/>
-          <Route path='/' element={<HomePage />}/>
-          <Route path='/profile' element={<Profile />}/>
-          <Route path='/chat' element={<ChatBot />}/>
-        </Routes>
+        <AuthProvider>
+          <NavBar />
+          <Routes>
+            <Route path='/loginsignup' element={<LoginSignUp />}/>
+            <Route path='/' element={
+              <ProtectedRoute>
+                <HomePage />
+              </ProtectedRoute>
+            }/>
+            <Route path='/profile' element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }/>
+            <Route path='/chat' element={
+              <ProtectedRoute>
+                <ChatBot />
+              </ProtectedRoute>
+            }/>
+          </Routes>
+        </AuthProvider>
       </Router>
     </>
   )

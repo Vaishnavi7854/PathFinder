@@ -2,15 +2,24 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown, User, Settings, LogOut } from 'lucide-react'
+import { useAuth } from '../contexts/AuthContext'
 
 export default function NavBar() {
   const [isOpen, setIsOpen] = useState(false)
-  const username = "John Doe"
+  const { user, logout } = useAuth()
   const navigate = useNavigate()
 
-  const handleNavigation = (path) => {
+  const handleNavigation = async (path) => {
     setIsOpen(false)
-    navigate(path)
+    if (path === '/logout') {
+      await logout()
+    } else {
+      navigate(path)
+    }
+  }
+
+  if (!user) {
+    return null;
   }
 
   return (
@@ -51,7 +60,7 @@ export default function NavBar() {
                 className="flex items-center space-x-2"
               >
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#629584] to-[#387478] flex items-center justify-center text-[#E2F1E7] font-bold shadow-lg">
-                  {username.charAt(0)}
+                  {user.name.charAt(0)}
                 </div>
                 <ChevronDown className="w-4 h-4 text-[#E2F1E7]" />
               </motion.button>
@@ -67,9 +76,9 @@ export default function NavBar() {
                   >
                     <div className="flex flex-col items-center mb-4">
                       <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#629584] to-[#387478] flex items-center justify-center text-[#E2F1E7] text-2xl font-bold shadow-lg mb-2">
-                        {username.charAt(0)}
+                        {user.name.charAt(0)}
                       </div>
-                      <span className="text-[#E2F1E7] font-semibold">{username}</span>
+                      <span className="text-[#E2F1E7] font-semibold">{user.name}</span>
                     </div>
                     {[
                       { name: 'My Profile', path: '/profile' },
